@@ -17,7 +17,7 @@ app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers, *, Access-Control-Allow-Origin",
     "Origin, X-Requested-with, Content_Type, Accept, Authorization",
-    "http://crm-adminstaration/add-teacher",
+    "http://localhost:3000/add-teacher",
     "http://crm-adminstaration/add-student"
   );
   next();
