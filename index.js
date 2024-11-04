@@ -28,15 +28,14 @@ admin.initializeApp({
 });
 
 app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
   res.header(
-    "Access-Control-Allow-Headers, *, Access-Control-Allow-Origin",
-    "Origin, X-Requested-with, Content_Type, Accept, Authorization",
-    "http://crm-adminstaration  /add-teacher",
-    "http://crm-adminstaration/add-student"
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   next();
 });
-console.log(process.env.FIREBASE_TYPE)
+
 app.post("/add-teacher", async (req, res) => {
   try {
     const teacher = {
