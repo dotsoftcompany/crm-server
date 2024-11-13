@@ -2,13 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 const admin = require("firebase-admin");
 
+// Initialize Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.FIREBASE_TYPE,
@@ -27,14 +23,20 @@ admin.initializeApp({
   }),
 });
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  next();
-});
+// Use CORS with specific options
+const corsOptions = {
+  origin: ["http://localhost:5000", "https://crm-adminstration.vercel.app"],
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders:
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Add this middleware to handle preflight requests
+app.options("*", cors(corsOptions));
 
 app.post("/add-teacher", async (req, res) => {
   try {
