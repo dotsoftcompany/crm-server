@@ -23,21 +23,24 @@ admin.initializeApp({
   }),
 });
 
-// Use CORS with specific options
+// Use CORS middleware
 const corsOptions = {
-  origin: ["http://localhost:5000", "https://crm-adminstration.vercel.app"],
-  methods: "GET,POST,PUT,DELETE",
+  origin: ["http://localhost:5000", "https://your-frontend-domain.com"],
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
   allowedHeaders:
     "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Add this middleware to handle preflight requests
-app.options("*", cors(corsOptions));
-
+// Add teacher route
 app.post("/add-teacher", async (req, res) => {
   try {
     const teacher = {
@@ -61,6 +64,7 @@ app.post("/add-teacher", async (req, res) => {
     await admin
       .auth()
       .setCustomUserClaims(teacherResponse.uid, { role: "teacher" });
+
     await admin
       .firestore()
       .collection("teachers")
@@ -76,8 +80,7 @@ app.post("/add-teacher", async (req, res) => {
       uid: teacherResponse.uid,
     });
   } catch (error) {
-    console.log("Error in add-teacher:", error);
-
+    console.error("Error in add-teacher:", error);
     res.status(400).json({
       errorInfo: {
         code: error.code || "unknown_error",
