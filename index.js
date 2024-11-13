@@ -12,7 +12,7 @@ admin.initializeApp({
 
 // Use CORS with specific origin
 const corsOptions = {
-  origin: "https://crm-adminstration.vercel.app", // Allow only this origin
+  origin: "https://crm-adminstration.vercel.app/add-teacher", // Allow only this origin
   methods: "GET, POST, PUT, DELETE, OPTIONS",
   allowedHeaders: [
     "Origin",
