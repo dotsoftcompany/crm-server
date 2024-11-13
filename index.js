@@ -2,9 +2,22 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const admin = require("firebase-admin");
 
-// Initialize Firebase Admin SDK
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Headers, *, Access-Control-Allow-Origin",
+    "Origin, X-Requested-with, Content_Type, Accept, Authorization",
+    "https://crm-adminstration.vercel.app/add-teacher"
+  );
+  next();
+});
+
 admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.FIREBASE_TYPE,
@@ -23,24 +36,6 @@ admin.initializeApp({
   }),
 });
 
-// Use CORS middleware
-const corsOptions = {
-  origin: ["http://localhost:5000", "https://your-frontend-domain.com"],
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders:
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options("*", cors(corsOptions));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Add teacher route
 app.post("/add-teacher", async (req, res) => {
   try {
     const teacher = {
@@ -64,7 +59,6 @@ app.post("/add-teacher", async (req, res) => {
     await admin
       .auth()
       .setCustomUserClaims(teacherResponse.uid, { role: "teacher" });
-
     await admin
       .firestore()
       .collection("teachers")
@@ -80,7 +74,8 @@ app.post("/add-teacher", async (req, res) => {
       uid: teacherResponse.uid,
     });
   } catch (error) {
-    console.error("Error in add-teacher:", error);
+    console.log("Error in add-teacher:", error);
+
     res.status(400).json({
       errorInfo: {
         code: error.code || "unknown_error",
@@ -148,5 +143,5 @@ app.post("/add-student", async (req, res) => {
 const PORT = 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+  console.log(`Server is running on port ${PORT}`);
 });
