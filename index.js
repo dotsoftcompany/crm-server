@@ -30,15 +30,24 @@ app.use(
     origin: "https://crm-adminstration.vercel.app", // Allow your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Include this if you are using cookies or authorization headers
+    credentials: true, // Include if you are using cookies or authorization headers
   })
 );
 
+// Explicitly handle preflight requests
+app.options("*", (req, res) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://crm-adminstration.vercel.app"
+  );
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(204); // No Content
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Handle Preflight Requests
-app.options("*", cors());
 
 app.post("/add-teacher", async (req, res) => {
   try {
