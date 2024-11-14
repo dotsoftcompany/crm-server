@@ -2,53 +2,43 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-const admin = require("firebase-admin");
-const credentials = require("./serviceAccountKey.json");
 
-// Initialize Firebase Admin SDK
+const admin = require("firebase-admin");
+
+// Firebase Admin SDK Initialization
 admin.initializeApp({
-  credential: admin.credential.cert(credentials),
+  credential: admin.credential.cert({
+    type: process.env.FIREBASE_TYPE,
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY
+      ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+      : null,
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
+    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+  }),
 });
 
-// Use CORS with specific origin
-const corsOptions = {
-  origin: "https://crm-adminstration.vercel.app/add-teacher", // Allow only this origin
-  methods: "GET, POST, PUT, DELETE, OPTIONS",
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "Authorization",
-  ],
-  credentials: true, // If you need to send cookies or other credentials
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests (for complex requests like POST)
-app.options("*", cors(corsOptions));
+// Use CORS with specific configurations
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Include this if you are using cookies or authorization headers
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// admin.initializeApp({
-//   credential: admin.credential.cert({
-//     type: process.env.FIREBASE_TYPE,
-//     project_id: process.env.FIREBASE_PROJECT_ID,
-//     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-//     private_key: process.env.FIREBASE_PRIVATE_KEY
-//       ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-//       : null,
-//     client_email: process.env.FIREBASE_CLIENT_EMAIL,
-//     client_id: process.env.FIREBASE_CLIENT_ID,
-//     auth_uri: process.env.FIREBASE_AUTH_URI,
-//     token_uri: process.env.FIREBASE_TOKEN_URI,
-//     auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
-//     client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
-//     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
-//   }),
-// });
+// Handle Preflight Requests
+app.options("*", cors());
 
 app.post("/add-teacher", async (req, res) => {
   try {
@@ -157,5 +147,5 @@ app.post("/add-student", async (req, res) => {
 const PORT = 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}.`);
 });
