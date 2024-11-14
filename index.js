@@ -2,7 +2,6 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
-
 const admin = require("firebase-admin");
 
 // Firebase Admin SDK Initialization
@@ -24,31 +23,32 @@ admin.initializeApp({
   }),
 });
 
-// Use CORS with specific configurations
+// CORS Configuration
+const allowedOrigins = [
+  "https://crm-adminstration.vercel.app",
+  "http://localhost:3000",
+];
+
 app.use(
   cors({
-    origin: "https://crm-adminstration.vercel.app", // Allow your frontend URL
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Include if you are using cookies or authorization headers
+    credentials: true,
   })
 );
 
-// Explicitly handle preflight requests
-app.options("*", (req, res) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://crm-adminstration.vercel.app"
-  );
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(204); // No Content
-});
+// Handle preflight requests for all routes
+app.options("*", cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.post("/add-teacher", async (req, res) => {
   try {
     const teacher = {
