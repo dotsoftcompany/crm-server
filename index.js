@@ -10,13 +10,33 @@ app.use(express.urlencoded({ extended: true }));
 
 const admin = require("firebase-admin");
 
-app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Headers, *, Access-Control-Allow-Origin",
-    "Origin, X-Requested-with, Content_Type, Accept, Authorization",
-    "https://crm-adminstration.vercel.app/add-teacher"
-  );
-  next();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://crm-adminstration.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // This is important for cookies and Authorization headers
+  })
+);
+
+// Handle preflight requests explicitly
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(204);
 });
 
 // Firebase Admin SDK Initialization
