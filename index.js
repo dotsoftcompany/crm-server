@@ -2,7 +2,22 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+
+app.use(cors());
+app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
+
 const admin = require("firebase-admin");
+
+app.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Headers, *, Access-Control-Allow-Origin",
+    "Origin, X-Requested-with, Content_Type, Accept, Authorization",
+    "https://crm-adminstration.vercel.app/add-teacher"
+  );
+  next();
+});
 
 // Firebase Admin SDK Initialization
 admin.initializeApp({
@@ -22,43 +37,6 @@ admin.initializeApp({
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
   }),
 });
-
-// ** CORS Configuration **
-const allowedOrigins = [
-  "https://crm-adminstration.vercel.app",
-  "http://localhost:3000",
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Allow cookies and authorization headers
-  })
-);
-
-// Handle preflight requests
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(204);
-});
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.post("/add-teacher", async (req, res) => {
   try {
