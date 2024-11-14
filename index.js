@@ -27,7 +27,7 @@ admin.initializeApp({
 // Use CORS with specific configurations
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow your frontend URL
+    origin: "https://crm-adminstration.vercel.app", // Allow your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Include this if you are using cookies or authorization headers
